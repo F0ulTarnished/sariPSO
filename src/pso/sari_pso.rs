@@ -23,7 +23,7 @@ pub fn sari_pso_alg(param:&Param,obj:&Objective,mode:&Mode)->Option<ReturnType>{
         let index_bar=muti_bar.add(ProgressBar::new(param.swarm_size as u64));
 
         for index in 0..param.swarm_size{
-            let r=determine_r(&mut swarm.particles[index],cur_gen,param,&late_info,index==0);
+            let r=determine_r(&mut swarm.particles[index],cur_gen,param,&late_info,index==0,mode.model);
             debug_assert!(!r.is_nan(),"r is NaN");
             match mode.model {
                 1=>{
@@ -37,8 +37,17 @@ pub fn sari_pso_alg(param:&Param,obj:&Objective,mode:&Mode)->Option<ReturnType>{
             update_place(&mut swarm.particles[index]);
             restrain_place(&mut swarm.particles[index], &obj.place_constrain);
             index_bar.inc(1);                                           //increment index_bar
+            match mode.model {
+                2=>swarm.async_update_obj(index, obj.fitness),
+                _=>{}
+            }
         }
         //update objective value,pb,gb
+        match mode.model {
+            2=>{}
+            _=>swarm.update_obj(obj.fitness),
+            
+        }
         swarm.update_obj(obj.fitness);
         swarm.update_search_angle(&mut search_angle_info);
         late_info.update_info(&swarm.particles, param.eval_range);

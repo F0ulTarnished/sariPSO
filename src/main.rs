@@ -15,7 +15,7 @@ fn main() {
     //set parameter
     let param=Param{
         d:obj.place_constrain.len(),
-        swarm_size:500,
+        swarm_size:1000,
         max_gen:1000,//use `usize` for the convienence of not changing type later
         omage:0.9,//ratio of cur_velocity in next_velocity
         c1:2.05,
@@ -29,7 +29,7 @@ fn main() {
         plot_flag:false,
         plot_search_angle:true,
         _ckpt_flag:true,
-        model:1,
+        model:3,
         output:1,
     };
     let best_solution=sari_pso_alg(&param, &obj, &mode);

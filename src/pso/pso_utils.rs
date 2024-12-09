@@ -1,6 +1,6 @@
 use std:: sync::Mutex;
 use rand::Rng;
-use rand_distr::{Distribution, StandardNormal};
+use rand_distr::{Beta, Distribution, StandardNormal};
 use super::{parameter_format::Param, population_format::Particle, sari_pso::LateInfo};
 //----------------------------------------------------------------------------
 /**
@@ -11,7 +11,7 @@ static CUMULATIVE_SUM:Mutex<Vec<f32>>=Mutex::new(Vec::new());
 /**
  This function will determine r
  */
-pub fn determine_r(particle: &mut Particle,cur_gen:usize,param:&Param,late_info:&LateInfo,first_flag:bool)->f32{
+pub fn determine_r(particle: &mut Particle,cur_gen:usize,param:&Param,late_info:&LateInfo,first_flag:bool,model:u8)->f32{
     let mut rng=rand::thread_rng();
     let r_num=param.r_num;
     //if not the first gen
@@ -25,7 +25,19 @@ pub fn determine_r(particle: &mut Particle,cur_gen:usize,param:&Param,late_info:
             update_cumulative_sum(&all_prob_k);     
         }
         //determine k
-        let r_0=rng.gen_range(0.0..=1.0);
+        let r_0:f32;
+        match model{
+            3=>{
+                if get_aggressive_flag(late_info, param.eval_range){
+                    let beta=Beta::new(5.0, 2.0).unwrap();
+                    r_0=beta.sample(&mut rng);
+                }
+                else {
+                    r_0=rng.gen_range(0.0..=1.0);
+                }
+            }
+            _=>{r_0=rng.gen_range(0.0..=1.0)}
+        }
         let mut k= CUMULATIVE_SUM.lock().unwrap().binary_search_by(|&x| {
             if x > r_0 {
                 std::cmp::Ordering::Greater
@@ -50,6 +62,21 @@ pub fn determine_r(particle: &mut Particle,cur_gen:usize,param:&Param,late_info:
         println!("Fail to generate correct r");
         f32::MAX
     }
+}
+fn get_aggressive_flag(late_info:&LateInfo,eval_range:usize)->bool{
+    let mut pb_update_rec=vec![0;eval_range];
+    let pb_update=&late_info.opt_update_pb_count;
+    for i in 0..eval_range{
+        for ele in pb_update{
+            pb_update_rec[i]+=ele[i];
+        }
+    }
+    let mut more_update_count=0;
+    for i in 1..eval_range{
+        let more_flag=pb_update_rec[i]>pb_update_rec[i-1];
+        more_update_count+=more_flag as usize;
+    }
+    more_update_count>(eval_range/2)
 }
 /**
 Returns the update ratio of k which is used in determining r,(k in 0..=r_num-1)  

@@ -110,6 +110,26 @@ impl Swarm {
             }
         }
     }
+    /**
+    update objective of one particle,
+    used for async update objectice
+     */
+    pub fn async_update_obj<F>(&mut self,index:usize,fitness:F)
+    where F:Fn(&Particle)->f32,{
+        let particle=&mut self.particles[index];
+        let obj_val=fitness(particle);
+        if obj_val<particle.pb_val{
+            particle.pb=particle.cur_place.clone();
+            particle.pb_val=obj_val;
+            //update k_info
+            particle.k_info.1=true;
+            //check if better than gb
+            if obj_val<self.gb_val{
+                self.gb=particle.cur_place.clone();
+                self.gb_val=obj_val;
+            }
+        }
+    }
     pub fn plot_figure(&self,fitness_name:&str, output_path: &str,cur_gen:usize) -> Result<(), Box<dyn Error>> {
         let mut data:Vec<f32>=Vec::new();
         let mut min_value:f32=f32::MAX;

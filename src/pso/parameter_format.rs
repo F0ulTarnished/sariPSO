@@ -42,6 +42,7 @@ pub struct Mode{
     pub _ckpt_flag:bool,
     /**
     choose the model to run
+    0 for classic PSO; 1 for sariPSO; 2 for async update sariPSO;3 for more adaptive roational invariant PSO
      */     
     pub model:u8, 
     /**

@@ -26,11 +26,12 @@ pub fn sari_pso_alg(param:&Param,obj:&Objective,mode:&Mode)->Option<ReturnType>{
             let r=determine_r(&mut swarm.particles[index],cur_gen,param,&late_info,index==0,mode.model);
             debug_assert!(!r.is_nan(),"r is NaN");
             match mode.model {
-                1=>{
-                    sari_update_velocity(&mut swarm.particles[index], param, r,&swarm.gb,gen_ratio );
+                
+                0=>{
+                    classic_update_velocity(&mut swarm.particles[index], param, &swarm.gb,gen_ratio );
                 }
                 _=>{
-                    classic_update_velocity(&mut swarm.particles[index], param, &swarm.gb,gen_ratio );
+                    sari_update_velocity(&mut swarm.particles[index], param, r,&swarm.gb,gen_ratio );
                 }
             }
             

@@ -48,7 +48,7 @@ pub fn sari_pso_alg(param:&Param,obj:&Objective,mode:&Mode)->Option<ReturnType>{
             _=>swarm.update_obj(obj.fitness),
             
         }
-        swarm.update_obj(obj.fitness);
+        //swarm.update_obj(obj.fitness);
         swarm.update_search_angle(&mut search_angle_info);
         late_info.update_info(&swarm.particles, param.eval_range);
 

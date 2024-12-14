@@ -186,8 +186,15 @@ impl Swarm {
             let r_cos=particle.cur_place[d1];
             let angle=f32::atan2(r_sin, r_cos);
             let index=((angle + PI) / (PI / 40.0)) as usize;
-            debug_assert!(index<80,"angle:{} out of range",angle);
-            search_angle_info[index]+=1;
+            if index!=80{
+                search_angle_info[index]+=1;
+            }
+            else if index==80 {
+                search_angle_info[0]+=1;
+            }
+            else {
+                debug_assert!(index<80,"angle:{} out of range",angle);
+            }
         }
     }
     /**
